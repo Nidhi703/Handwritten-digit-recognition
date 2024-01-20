@@ -17,6 +17,7 @@ class App(Tk):
             print("Model loaded successfully.")
         except Exception as e:
             print(f"Error loading model: {e}")
+            self.model = None  # Set model to None in case of loading failure
 
         # Creating elements
         self.canvas = Canvas(self, width=300, height=300, bg="white", cursor="cross")
@@ -37,11 +38,14 @@ class App(Tk):
         self.canvas.delete("all")
 
     def classify_handwriting(self):
-        HWND = self.canvas.winfo_id()  # get the handle of the canvas
-        rect = win32gui.GetWindowRect(HWND)  # get the coordinate of the canvas
-        im = ImageGrab.grab(rect)
-        digit, acc = predict_digit(self.model, im)
-        self.label.configure(text=str(digit) + ', ' + str(int(acc * 100)) + '%')
+        if self.model is not None:  # Check if model is successfully loaded
+            HWND = self.canvas.winfo_id()  # get the handle of the canvas
+            rect = win32gui.GetWindowRect(HWND)  # get the coordinate of the canvas
+            im = ImageGrab.grab(rect)
+            digit, acc = predict_digit(self.model, im)
+            self.label.configure(text=str(digit) + ', ' + str(int(acc * 100)) + '%')
+        else:
+            print("Model not loaded. Cannot classify handwriting.")
 
     def draw_lines(self, event):
         self.x = event.x
